@@ -36,6 +36,10 @@ jobs:
   vulnerable:
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        frob: ["nothing", "special"]
+
     steps:
       - name: vulnerable-1
         # NOT OK: attacker controlled issue title
@@ -68,3 +72,8 @@ jobs:
         # NOT OK: typically not attacker-controllable, but bypasses proper shell escaping
         run: |
           echo "doing a thing: ${{ env.HACKME_ENV }}"
+
+      - name: vulnerable-7
+        # NOT OK: typically not attacker-controlled, but can be if for generated matrices
+        run: |
+          echo "doing a thing: ${{ matrix.frob }}"

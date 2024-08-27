@@ -25,7 +25,9 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  # trivial example, with credential persistence flowing directly to artifact
+  # creation.
+  vulnerable-1:
     runs-on: ubuntu-latest
     steps:
       # NOT OK: actions/checkout persist-credentials enabled (default)
@@ -38,3 +40,46 @@ jobs:
         with:
           name: artipacked
           path: .
+
+  # non-trivial example, with persistence flowing to artifact creation
+  # via a manually-created archive (in a shell step)
+  # minimized from firebase-js-sdk:
+  # https://github.com/firebase/firebase-js-sdk/blob/4f157b486833/.github/workflows/test-all.yml
+  vulnerable-2:
+    runs-on: ubuntu-latest
+    steps:
+      # NOT OK: persists credentials
+      - uses: actions/checkout@v3
+
+      # NOT OK: archives the entire repo, including persisted creds
+      - name: Archive build
+        if: ${{ !cancelled() }}
+        run: |
+          tar -cf build.tar .
+          gzip build.tar
+
+      # NOT OK: archive includes persisted creds
+      - name: Upload build archive
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v3
+        with:
+            name: build.tar.gz
+            path: build.tar.gz
+
+  # trivial example, with persitence flowing directly to
+  # artifact creation via `github.workspace`.
+  # minimized from quay/clair:
+  # https://github.com/quay/clair/blob/1d338051f374/.github/workflows/tests.yml
+  vulnerable-3:
+    runs-on: ubuntu-latest
+    steps:
+      # NOT OK: persists credentials
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # NOT OK: archives and uploads entire workspace
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: workspace
+          path: ${{ github.workspace }}

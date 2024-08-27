@@ -1,0 +1,70 @@
+# template-injection.yml
+#
+# what:
+# GitHub Actions has a template and expression language, delimited by
+# `${{ ... }}`, that can be inserted into most parts of a workflow.
+# expression evaluation and expansion happens before the workflow is
+# executed, meaning that an attacker who controls the expansion of a
+# template may be able to bypass normal shell quoting and escaping
+# rules to inject code directly into a `runs:` step.
+#
+# how:
+# many workflows allow free-form user inputs, which an attacker can
+# use for injection. similarly, many workflows run on triggers that
+# include multiple sources of attacker-controlled input, such
+# as `github.event.issue.title` being whatever string the attacker creates
+# a new issue with.
+#
+# see also: https://www.kenmuse.com/blog/github-actions-injection-attacks/
+
+name: example
+on:
+  issues:
+  workflow_dispatch:
+    inputs:
+      hackme:
+        type: string
+  workflow_call:
+    inputs:
+      hackme-call:
+        type: string
+
+env:
+  HACKME_ENV: hello
+
+jobs:
+  vulnerable:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: vulnerable-1
+        # NOT OK: attacker controlled issue title
+        run: |
+          echo "issue created: ${{ github.event.issue.title }}"
+
+      - name: vulnerable-2
+        # NOT OK: attacker controlled workflow_dispatch input
+        run: |
+          echo "doing a thing: ${{ inputs.hackme }}"
+
+      - name: not-vulnerable-3
+        # OK: expanding secrets is typically OK, since an attacker does not control them
+        run: |
+          frobulate ${{ secrets.GITHUB_TOKEN }}
+
+      - name: vulnerable-4
+        # NOT OK: `workflow_call` inputs may or may not be trusted
+        run: |
+          echo "doing a thing: ${{ inputs.hackme-call }}"
+
+      - name: not-vulnerable-5
+        # OK: attacker-controlled input is neutralized by an environment variable
+        run: |
+          echo "doing a thing: ${HACKME}"
+        env:
+          HACKME: ${{ inputs.hackme }}
+
+      - name: vulnerable-6
+        # NOT OK: typically not attacker-controllable, but bypasses proper shell escaping
+        run: |
+          echo "doing a thing: ${{ env.HACKME_ENV }}"

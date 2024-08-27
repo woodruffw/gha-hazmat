@@ -1,0 +1,40 @@
+# artipacked.yml
+#
+# what:
+# an example of the "ArtiPACKED" vulnerability, wherein an attacker
+# can obtain short-lived actions credentials (i.e. the default
+# GITHUB_TOKEN and ACTIONS_RUNTIME_TOKEN) that are accidentally
+# persisted to a publicly accessible artifact.
+#
+# how:
+# by default, the `actions/checkout` action persists the current `GITHUB_TOKEN`
+# and `ACTIONS_RUNTIME_TOKEN` in the checked-out repo's `.git/config`,
+# for use by subsequent `git` operations. this repo config is not normally
+# made public or leaked, but can be accidentally leaked by use of
+# `actions/upload-artifact` on the entire repo directory or similar.
+# users are not typically aware that `actions/checkout` places credentials
+# in their repos by default, leading to the assumption that creating a public
+# artifact is always safe.
+#
+# see also: https://unit42.paloaltonetworks.com/github-repo-artifacts-leak-tokens/
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # NOT OK: actions/checkout persist-credentials enabled (default)
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # NOT OK: upload-artifact archives entire repo, including persisted creds
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: artipacked
+          path: .

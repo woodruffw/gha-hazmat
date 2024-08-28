@@ -1,0 +1,24 @@
+# ref-confusion.yml
+#
+# what: GitHub Actions allows actions and reusable workflows to be pinned
+# to individual tag or branch refs. however, tag and branch refs have
+# ambiguous overlapping namespaces: `@foo` might refer to `/refs/tags/foo`
+# or `/refs/heads/foo`. in practice GitHub Actions appears to prefer
+# the branch namespace over the tag namespace, meaning that an action
+# pinned as `@foo` where `foo` is a tag might suddently begin using a
+# different (and potentially malicious) action if someone is able to push
+# to the `foo` branch.
+#
+# how: an attacker without the ability to create tags but with the ability
+# to create branches on a particular repo may be able to induce unrelated
+# repositories into running malicious action code.
+
+name: example
+on: [push]
+
+jobs:
+ commit:
+   runs-on: ubuntu-latest
+   steps:
+     # NOT OK: `confusable` is both a tag and a branch
+     - uses: woodruffw/gha-hazmat/ref-confusion@confusable

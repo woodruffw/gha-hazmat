@@ -1,0 +1,10 @@
+# a dummy composite action to demonstrate ref confusion with.
+# see: .github/workflows/ref-confusion.yml
+
+name: ref confusion
+description: "an example action that's present on branch and tag refs with the same name"
+runs:
+  using: "composite"
+  steps:
+    - run: echo hello
+      shell: bash

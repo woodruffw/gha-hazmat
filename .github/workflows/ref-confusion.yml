@@ -17,8 +17,8 @@ name: example
 on: [push]
 
 jobs:
- commit:
-   runs-on: ubuntu-latest
-   steps:
-     # NOT OK: `confusable` is both a tag and a branch
-     - uses: woodruffw/gha-hazmat/ref-confusion@confusable
+  commit:
+    runs-on: ubuntu-latest
+    steps:
+      # NOT OK: `confusable` is both a tag and a branch
+      - uses: woodruffw/gha-hazmat/ref-confusion@confusable

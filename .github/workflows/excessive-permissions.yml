@@ -1,0 +1,42 @@
+# excessive-permissions.yml
+#
+# what:
+# github actions supports both rough and fine-grained permissions scoping
+# at both the workflow and per-job levels. these permissions can be very
+# powerful even when limited to just subsets, and the defaults are often
+# excessively powerful, resulting in workflow jobs and steps built entirely
+# from third-party code running with greater privieges than the workflow's
+# owner may expect.
+#
+# how:
+# user error; hasty CI/CD development.
+
+name: example
+on: [push]
+
+permissions:
+  # NOT OK: too broad; should be scoped at the job level
+  id-token: write
+  # NOT OK: too broad; should be scoped at the job level
+  contents: write
+
+jobs:
+  perms-1:
+    runs-on: ubuntu-latest
+    steps:
+      - run: "echo hello"
+
+  perms-2:
+    runs-on: ubuntu-latest
+    # NOT OK: extremely broad job-level permissions
+    permissions: write-all
+    steps:
+      - run: "echo hello"
+
+  perms-3:
+    runs-on: ubuntu-latest
+    # OK: write permission on an individual job
+    permissions:
+      id-token: write
+    steps:
+      - run: "echo hello"

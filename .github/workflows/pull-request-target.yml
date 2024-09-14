@@ -1,0 +1,38 @@
+# pull-request-target.yml
+#
+# what:
+# the pull_request_target trigger behaves similarly to pull_request,
+# except that it runs in the context of the *upstream* repository
+# and not the *fork*. this means that it has access to the upstream's
+# credentials.
+#
+# by default, `pull_request_target` runs in the context of the upstream
+# rather than the fork's merge commit, to prevent attacker-controlled code
+# from running with access to the upstream's workflow secrets. however,
+# users frequently undermine this default stance by explicitly checking
+# attacker-controlleg changes out.
+#
+# how:
+# user error.
+#
+# see also: https://securitylab.github.com/resources/github-actions-preventing-pwn-requests/
+
+on:
+  # NOT OK: pull_request_target should almost never be used
+  pull_request_target:
+
+jobs:
+  vulnerable:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        # NOT OK: checks out attacker-controlled code
+        with: ${{ github.event.pull_request.head.sha }}
+
+      - uses: actions/setup-node@v4
+
+      # NOT OK: attacker-controlled checkout above allows code execution here
+      - run: |
+          npm install
+          npm build

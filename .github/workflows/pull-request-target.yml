@@ -28,7 +28,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         # NOT OK: checks out attacker-controlled code
-        with: ${{ github.event.pull_request.head.sha }}
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
 
       - uses: actions/setup-node@v4
 

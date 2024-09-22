@@ -33,12 +33,13 @@ env:
   HACKME_ENV: hello
 
 jobs:
-  vulnerable:
+  vulnerable-1:
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
         frob: ["nothing", "special"]
+        dynamic: ${{ github.event.client_payload.mystery_meat }}
 
     steps:
       - name: vulnerable-1
@@ -73,7 +74,35 @@ jobs:
         run: |
           echo "doing a thing: ${{ env.HACKME_ENV }}"
 
-      - name: vulnerable-7
-        # NOT OK: typically not attacker-controlled, but can be if for generated matrices
+      - name: not-vulnerable-7
+        # OK: matrix.frob is static
         run: |
           echo "doing a thing: ${{ matrix.frob }}"
+
+      - name: vulnerable-8
+        # NOT OK: matrix.dynamic is dynamic
+        run: |
+          echo "doing a thing: ${{ matrix.dynamic }}"
+
+      - name: vulnerable-9
+        # NOT OK: matrix is has dynamic members, so referencing the entire thing includes dynamic members
+        run: |
+          echo "doing a thing: ${{ matrix }}"
+
+      - name: vulnerable-10
+        # OK: github.workspace is not attacker controlled
+        run: |
+          echo "doing a thing: ${{ github.workspace }}"
+
+  vulnerable-2:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix: ${{ github.event.client_payload.mystery_meat }}
+
+    steps:
+      - name: vulnerable-11
+        # NOT OK: entire matrix is dynamic
+        run: |
+          echo "doing a thing: ${{ matrix.unknown-key }}"
+

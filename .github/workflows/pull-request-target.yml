@@ -30,6 +30,7 @@ jobs:
         # NOT OK: checks out attacker-controlled code
         with:
           ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
 
       - uses: actions/setup-node@v4
 

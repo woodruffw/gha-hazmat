@@ -1,0 +1,28 @@
+# self-hosted.yml
+#
+# what:
+# runs jobs on a self-hosted runner. self-hosted runners *can* be used
+# securely in "ephemeral" setups (where the runner is torn down after
+# each job), but this is not the default and is commonly not the case.
+#
+# as such, self-hosted runners should generally not be used within public
+# repositories. the exception to this is ephemeral runners, but there's
+# no easy way to distinguish these at the workflow level.
+#
+# how:
+# misconfiguration.
+#
+# see also: https://docs.github.com/en/actions/hosting-your-own-runners/managing-self-hosted-runners/about-self-hosted-runners#self-hosted-runner-security
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  vulnerable:
+    # NOT OK: self-hosted runners are difficult to secure in public repos
+    runs-on: [self-hosted, my-ubuntu-box]
+
+    steps:
+      - run: |
+          echo "hello from a self-hosted runner"

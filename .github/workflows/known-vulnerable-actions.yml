@@ -1,0 +1,28 @@
+# known-vulnerable-actions.yml
+#
+# what: examples of publicly known (OSV-tracked) vulnerable actions.
+#
+# how: failure to update.
+#
+# see also: https://osv.dev/list?q=&ecosystem=GitHub+Actions
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  vulnerable:
+    runs-on: ubuntu-latest
+
+    steps:
+      # NOT OK: GHSA-4xqx-pqpj-9fqw
+      - uses: atlassian/gajira-create@v1.0.1
+
+      # NOT OK: GHSA-4xqx-pqpj-9fqw
+      - uses: atlassian/gajira-create@2cd32e0738e2b31717e7119717fed83e482d2a36
+
+      # OK: v4 should resolve to > 4.4.1
+      - uses: rlespinasse/github-slug-action@v4
+
+      # NOT OK: GHSA-6q4m-7476-932w
+      - uses: rlespinasse/github-slug-action@4.0.1

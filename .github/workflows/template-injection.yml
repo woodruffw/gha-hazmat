@@ -106,3 +106,14 @@ jobs:
         run: |
           echo "doing a thing: ${{ matrix.unknown-key }}"
 
+
+  vulnerable-3:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: vulnerable-12
+        uses: actions/github-script@v7
+        with:
+          # NOT OK: attacker-controlled issue title
+          script: |
+            return "doing a thing: ${{ github.event.issue.title }}"

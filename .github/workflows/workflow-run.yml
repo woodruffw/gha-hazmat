@@ -1,0 +1,30 @@
+# workflow-run.yml
+#
+# what:
+# like `pull_request_target`, the `workflow_run` trigger is fundamentally
+# dangerous: it runs in the context of the upstream repository, not
+# the fork, meaning that it has access to the upstream's credentials
+# and can potentially run arbitrary code with them.
+#
+# in addition to running in the upstream's context, `workflow_run`
+# is triggered by matching on a workflow's `name`, which is not unique
+# and is trivial to impersonate in the context of e.g. an attacker-controlled
+# PR.
+#
+# how:
+# user error.
+
+on:
+  # NOT OK: allows trivial third-party access to the upstream's context
+  workflow_run:
+    workflows: ["CI"]
+
+jobs:
+  vulnerable:
+    runs-on: ubuntu-latest
+
+    steps:
+      - run: |
+          echo "does something sensitive here!"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

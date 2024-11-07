@@ -117,3 +117,12 @@ jobs:
           # NOT OK: attacker-controlled issue title
           script: |
             return "doing a thing: ${{ github.event.issue.title }}"
+
+  not-vulnerable-4:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: not-vulnerable-13
+        # OK: safe, since the expression can only ever evaluate to a boolean
+        run: |
+          ${{ some.context == 'success' }}

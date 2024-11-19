@@ -1,0 +1,19 @@
+on: pull_request
+
+name: insecure-commands
+
+env:
+  # NOT OK
+  ACTIONS_ALLOW_UNSECURE_COMMANDS: yes
+
+jobs:
+  some-dangerous-job:
+    runs-on: ubuntu-latest
+    env:
+      # NOT OK
+      ACTIONS_ALLOW_UNSECURE_COMMANDS: yes
+    steps:
+      - run: echo "don't do this"
+        env:
+          # NOT OK
+          ACTIONS_ALLOW_UNSECURE_COMMANDS: yes

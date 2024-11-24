@@ -1,0 +1,34 @@
+# github-env.yml
+#
+# what:
+# this vulnerability compounds with dangerous Workflow triggers,
+# like pull_request_target.
+#
+# since the triggered Workflow runs in the context of the upstream repository,
+# in the proper scenario an attacker can manipulate what goes through
+# $GITHUB_ENV, either adding new variables to the environment or tweaking
+# existing well-known ones (e.g. variables used by programming languages)
+#
+# how:
+# user error.
+#
+# see also:
+# - https://www.synacktiv.com/en/publications/github-actions-exploitation-repo-jacking-and-environment-manipulation
+# - https://securitylab.github.com/advisories/GHSL-2024-177_Litestar/
+
+on:
+  # NOT OK: pull_request_target enables this attack
+  pull_request_target:
+
+jobs:
+  vulnerable:
+    runs-on: ubuntu-latest
+
+    steps:
+      # NOT OK: attacker-controlled $TITLE can lead to code execution by setting
+      # an environment variable like $LD_PRELOAD, for example
+      - run: |
+          message=$(echo "$TITLE" | grep -oP '[{\[][^}\]]+[}\]]' | sed 's/{\|}\|\[\|\]//g')
+          echo "message=$message" >> $GITHUB_ENV
+        env:
+          TITLE: ${{ github.event.pull_request.title }}

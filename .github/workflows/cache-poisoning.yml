@@ -1,0 +1,58 @@
+# cache-poisoning.yml
+#
+# what:
+#
+# This vulnerability happens when Workflows intended to build and publish
+# artifacts do that by leveraging CI cached state from previous executions
+# (e.g. with actions/cache or actions/cache/restore)
+#
+# That might happen on top of particular bare event triggers (like `release`)
+# or events with path filters like `push` (e.g. for tags).
+#
+# An attacker with access to a valid GITHUB_TOKEN can use it to override cache
+# entries in the Github cachs server, compounding that with default behaviour of
+# actions/tookit to retrieve payloads and achieve code execution.
+#
+# how:
+# user error.
+#
+# see also:
+# - https://adnanthekhan.com/2024/05/06/the-monsters-in-your-build-cache-github-actions-cache-poisoning/
+
+on: release
+
+jobs:
+  vulnerable-1:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Project Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+
+      # NOT OK: opt-in for a previous CI cache state when publishing artifacts
+      - name: Setup JDK
+        uses: actions/setup-java@8df1039502a15bceb9433410b1a100fbe190c53b
+        with:
+          distribution: "zulu"
+          cache: "gradle"
+          java-version: "17"
+
+      - name: Publish to Maven Central
+        run: ./gradlew publishToMavenCentral --no-configuration-cache
+
+  vulnerable-2:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Project Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+
+      # NOT OK: this Action enables caches restoration by default
+      - name: Setup CI caching
+        uses: Swatinem/rust-cache@82a92a6e8fbeee089604da2575dc567ae9ddeaab
+
+      - name: Publish on crates.io
+        run: cargo publish --token ${{ secrets.CRATESIO_PUBLISH_TOKEN }}

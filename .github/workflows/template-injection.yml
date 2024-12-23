@@ -89,7 +89,7 @@ jobs:
         run: |
           echo "doing a thing: ${{ matrix }}"
 
-      - name: vulnerable-10
+      - name: not-vulnerable-10
         # OK: github.workspace is not attacker controlled
         run: |
           echo "doing a thing: ${{ github.workspace }}"

@@ -1,0 +1,34 @@
+# bot-conditions.yml
+#
+# what:
+# workflows that check github.actor are susceptible to spoofing/impersonation,
+# since github.actor refers to the last actor (i.e. in the git history of a
+# branch) while the branch itself may contain attacker-controlled code.
+#
+# how:
+# confusion between github.actor and other actor identities in a workflow trigger.
+
+on: pull_request_target
+
+permissions: {}
+
+jobs:
+  hackme:
+    runs-on: ubuntu-latest
+    if: github.actor == 'dependabot[bot]'
+    steps:
+      - name: vulnerable-1
+        run: echo hello
+        if: ${{ github.actor == 'dependabot[bot]' }}
+
+      - name: vulnerable-2
+        run: echo hello
+        if: ${{ github.actor == 'dependabot[bot]' && github.repository == 'example/example' }}
+
+      - name: vulnerable-3
+        run: echo hello
+        if: github.actor == 'renovate[bot]'
+
+      - name: not-vulnerable-4
+        run: echo hello
+        if: github.actor == 'notabot'

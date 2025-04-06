@@ -10,7 +10,7 @@
 # or events with path filters like `push` (e.g. for tags).
 #
 # An attacker with access to a valid GITHUB_TOKEN can use it to override cache
-# entries in the Github cachs server, compounding that with default behaviour of
+# entries in the Github cache server, compounding that with default behaviour of
 # actions/tookit to retrieve payloads and achieve code execution.
 #
 # how:

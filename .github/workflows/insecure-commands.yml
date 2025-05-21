@@ -4,16 +4,16 @@ name: insecure-commands
 
 env:
   # NOT OK
-  ACTIONS_ALLOW_UNSECURE_COMMANDS: yes
+  ACTIONS_ALLOW_UNSECURE_COMMANDS: true
 
 jobs:
   some-dangerous-job:
     runs-on: ubuntu-latest
     env:
       # NOT OK
-      ACTIONS_ALLOW_UNSECURE_COMMANDS: yes
+      ACTIONS_ALLOW_UNSECURE_COMMANDS: true
     steps:
       - run: echo "don't do this"
         env:
           # NOT OK
-          ACTIONS_ALLOW_UNSECURE_COMMANDS: yes
+          ACTIONS_ALLOW_UNSECURE_COMMANDS: true

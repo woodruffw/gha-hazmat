@@ -18,8 +18,12 @@ on:
   push:
     branches: [main]
 
+permissions: {}
+
 jobs:
   vulnerable:
+    permissions: {}
+
     # NOT OK: self-hosted runners are difficult to secure in public repos
     runs-on: [self-hosted, my-ubuntu-box]
 

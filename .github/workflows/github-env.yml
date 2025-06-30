@@ -20,6 +20,8 @@ on:
   # NOT OK: pull_request_target enables this attack
   pull_request_target:
 
+permissions: {}
+
 jobs:
   vulnerable:
     runs-on: ubuntu-latest

@@ -1,0 +1,25 @@
+# unsound-condition.yml
+#
+# what: `if:` conditions that are confusingly always true.
+#
+# how:
+# this typically happens due to an interaction between fenced expressions
+# and YAML multiline block-style strings. a condition inside of
+# a block-style string contains a trailing newline *outside* of the
+# expression itself, meaning that GitHub Actions ultimately sees
+# `eval\n` for the condition value instead of `eval`. That in turn is
+# a nonempty string, so the condition is always true.
+
+name: unsound-condition
+on: [push]
+permissions: {}
+
+jobs:
+  unsound-condition:
+    name: unsound condition
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo "this should not run, but it does"
+        if: |
+          ${{ github.event != 'push' }}

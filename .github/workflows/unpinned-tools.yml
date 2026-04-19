@@ -1,0 +1,42 @@
+# unpinned-tools.yml
+#
+# what:
+# underlying tool uses that are left unpinned, even when the action itself
+# is pinned.
+#
+# how:
+# some actions fetch a tool or binary at runtime based on a `with.version`
+# input. if that input is omitted, set to `latest`, or set dynamically via an
+# expression, then the exact tool version may not be fixed.
+# this workflow demonstrates the currently modeled `unpinned-tools` cases.
+
+name: unpinned-tools
+
+on: [push]
+
+permissions: {}
+
+jobs:
+  unpinned-tools:
+    runs-on: ubuntu-latest
+    steps:
+      # NOT OK: known action with no `with.version`
+      - uses: aquasecurity/trivy-action@b6643a29fecd7f34b3597bc6acb0a98b03d33ff8 # 0.33.1
+
+      # NOT OK: known action with `version: latest`
+      - uses: aquasecurity/trivy-action@b6643a29fecd7f34b3597bc6acb0a98b03d33ff8 # 0.33.1
+        with:
+          version: latest
+
+      # NOT OK: known action with dynamic `version`
+      - uses: aquasecurity/trivy-action@b6643a29fecd7f34b3597bc6acb0a98b03d33ff8 # 0.33.1
+        with:
+          version: ${{ inputs.trivy-version }}
+
+      # NOT OK: second known action with no `with.version`
+      - uses: 1password/load-secrets-action@92467eb28f72e8255933372f1e0707c567ce2259 # v4.0.0
+
+      # NOT OK: second known action with `version: latest`
+      - uses: 1password/load-secrets-action@92467eb28f72e8255933372f1e0707c567ce2259 # v4.0.0
+        with:
+          version: latest
